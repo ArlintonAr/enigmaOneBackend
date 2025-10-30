@@ -70,6 +70,16 @@ public class MovementService implements MovementServiceInterface {
         return  movements;
     }
 
+    @Override
+    public List<MovementResponseDTO>  getMovementByTransactionCode(String transactionCode) {
+        List<MovementResponseDTO> movements = this.movementRepository.findMovementByTransactionCode(transactionCode)
+                .stream()
+                .map(this.movementMapper::toMovementDTOResponse)
+                .collect(Collectors.toList());
+
+        return movements;
+    }
+
 
     @Override
     public Movement getMovementById(Long id) {

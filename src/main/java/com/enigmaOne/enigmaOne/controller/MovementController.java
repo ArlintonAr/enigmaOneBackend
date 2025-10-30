@@ -64,6 +64,17 @@ public class MovementController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/searchForTransactionCode/{transactionCode}")
+    public ResponseEntity<ApiResponse<List<MovementResponseDTO>>> getMovementByTransactionCode(@PathVariable String transactionCode) {
+        List<MovementResponseDTO> movements = this.movementService.getMovementByTransactionCode(transactionCode);
+        if (movements == null) {
+            ApiResponse< List<MovementResponseDTO>> response = new ApiResponse<>("Movimiento no encontrado", null);
+            return ResponseEntity.status(404).body(response);
+        }
+        ApiResponse<List<MovementResponseDTO>> response = new ApiResponse<>("Movimiento encontrado", movements);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/searchForEmployeeId/{employeeId}")
     public ResponseEntity<ApiResponseTest<List<MovementResponseDTO>>> getMovementByEmployeeId(@PathVariable Long employeeId) {
 

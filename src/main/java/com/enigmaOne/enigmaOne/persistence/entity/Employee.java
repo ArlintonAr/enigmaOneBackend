@@ -2,6 +2,7 @@ package com.enigmaOne.enigmaOne.persistence.entity;
 
 import com.enigmaOne.enigmaOne.persistence.audit.AuditEmployeeListener;
 import com.enigmaOne.enigmaOne.persistence.audit.Auditable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -11,6 +12,7 @@ import java.util.List;
 
 
 @EntityListeners({AuditingEntityListener.class, AuditEmployeeListener.class}) //ahora sabrá que será auditado con fecha de creacion y actualizacion
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 @Entity
 @Table(name="EMPLOYEES")
 @Getter

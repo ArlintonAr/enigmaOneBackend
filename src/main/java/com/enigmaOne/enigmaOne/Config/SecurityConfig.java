@@ -51,21 +51,33 @@ public class SecurityConfig {
                         authorize
                                 .requestMatchers("/authentication/**").permitAll()
                                 .requestMatchers("/check-status").authenticated()
+
                                 .requestMatchers("/employees/createEmployee").hasAnyRole(Role.JEFE_DE_PROYECTO.name(),Role.GERENTE_GENERAL.name())
                                 .requestMatchers("/employees/updateEmployee/**").hasAnyRole(Role.JEFE_DE_PROYECTO.name(),Role.GERENTE_GENERAL.name())
                                 .requestMatchers("/employees/deleteEmployee").hasAnyRole(Role.JEFE_DE_PROYECTO.name(),Role.GERENTE_GENERAL.name())
                                 .requestMatchers("/employees/{id}").permitAll()
                                 .requestMatchers("/employees/searchForTerm/**").permitAll()
                                 .requestMatchers("/employees/searchForName/**").permitAll()
-                                .requestMatchers("/orders/**").hasAnyRole(Role.JEFE_DE_PROYECTO.name(),Role.GERENTE_GENERAL.name())
+
+                                .requestMatchers("/orders/createOrder").hasAnyRole(Role.JEFE_DE_PROYECTO.name(),Role.GERENTE_GENERAL.name())
+                                .requestMatchers("/orders/updateOrder").hasAnyRole(Role.JEFE_DE_PROYECTO.name(),Role.GERENTE_GENERAL.name())
+                                .requestMatchers("/orders/{id}").permitAll()
+
                                 .requestMatchers("/materialOrders/**").permitAll()
+
                                 .requestMatchers("/serviceOrders/**").permitAll()
+
                                 .requestMatchers("/trackings/**").permitAll()
+
                                 .requestMatchers("/movements/**").permitAll()
+
                                 .requestMatchers("/detailExitMaterials/**").permitAll()
                                 .requestMatchers("/detailEntryMaterials/**").permitAll()
+
                                 .requestMatchers("/warehouses/**").permitAll()
+
                                 .requestMatchers("/stocks/**").permitAll()
+
                                 .requestMatchers("/positions/**").permitAll()
                                 .anyRequest().authenticated()
                 )

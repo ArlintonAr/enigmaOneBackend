@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.enigmaOne.enigmaOne.Config.CustomUserDetails;
+import com.enigmaOne.enigmaOne.persistence.types.TrackingState;
+import com.enigmaOne.enigmaOne.service.dto.EmployeeResponseDTO;
 
 import java.util.List;
 
@@ -26,6 +28,12 @@ public class OrderService implements OrderServiceInterface{
 
     @Autowired
     private TrackingService trackingService;
+
+    @Autowired
+    private OrderApprovalService orderApprovalService; // nueva inyección
+
+    @Autowired
+    private EmployeeService employeeService; // para resolver nombre del autor
 
     @Override
     public List<Order> getAllOrder() {
@@ -63,10 +71,23 @@ public class OrderService implements OrderServiceInterface{
             //Guardar la orden
              Order orderSaved = this.orderRepository.save(order);
 
-            //Crear el tracking inicial con id de la orden creada
-            Tracking newTracking = new Tracking();
-            newTracking.setOrderId(orderSaved.getId());
-            this.trackingService.saveTracking(newTracking);
+            //Crear el tracking inicial con id de la orden creada (usar helper para consistencia)
+            String creatorName = null;
+            if (employeeId != null){
+                EmployeeResponseDTO dto = this.employeeService.getEmployeeById(employeeId);
+                if (dto != null) creatorName = dto.getFirstName() + " " + dto.getLastName();
+            }
+            // Create or update the single tracking record for this order (quick-fix: keep one record)
+            this.trackingService.updateOrCreateTrackingEvent(orderSaved.getId(), TrackingState.PEDIDO, employeeId, creatorName, null);
+
+            // Inicializar aprobaciones para la orden
+            try {
+                this.orderApprovalService.initializeApprovals(orderSaved);
+            } catch (Exception e) {
+                // no bloquear creación si falla init approvals, pero loguear
+                System.out.println("WARN: no se pudieron inicializar aprobaciones: " + e);
+            }
+
             return true;
         }catch (Exception e){
             System.out.println("ERROR: " +e);
@@ -130,5 +151,31 @@ public class OrderService implements OrderServiceInterface{
             return false;
         }
         return true;
+    }
+
+    /**
+     * Agrega un evento de tracking para una orden, resolviendo el actor desde
+     * el usuario autenticado si está disponible. Útil para transiciones RUTA/ALMACEN.
+     */
+    public boolean addTrackingEvent(Long orderId, TrackingState state, String note){
+        try{
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long actorId = null;
+            String actorName = null;
+            if(authentication != null){
+                Object principal = authentication.getPrincipal();
+                if(principal instanceof CustomUserDetails){
+                    actorId = ((CustomUserDetails) principal).getId();
+                    // intentar resolver nombre
+                    EmployeeResponseDTO dto = this.employeeService.getEmployeeById(actorId);
+                    if(dto != null) actorName = dto.getFirstName() + " " + dto.getLastName();
+                }
+            }
+            // update the single tracking record for this order (or create it if missing)
+            return this.trackingService.updateOrCreateTrackingEvent(orderId, state, actorId, actorName, note);
+        }catch (Exception e){
+            System.out.println("ERROR addTrackingEvent: " + e);
+            return false;
+        }
     }
 }

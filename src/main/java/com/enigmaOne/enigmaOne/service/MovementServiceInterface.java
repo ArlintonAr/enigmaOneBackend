@@ -23,5 +23,5 @@ public interface MovementServiceInterface {
 
     List<MovementResponseDTO> getMovementsByEmployeeId(Long employeeId);
     List<MovementResponseDTO> getMovementsByMaterialRequesterFirstName(String firstName);
-
+    List<MovementResponseDTO> getMovementByTransactionCode(String transactionCode);
 }

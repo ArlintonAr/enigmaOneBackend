@@ -10,4 +10,7 @@ public interface TrackingRepository extends ListCrudRepository<Tracking,Long> {
     boolean existsTrackingById(Long id);
     List<Tracking> findByTrackingState(TrackingState trackingState);
 
+    // Devuelve el tracking más reciente para una orden (por id descendente)
+    Tracking findTopByOrderIdOrderByIdDesc(Long orderId);
+
 }

@@ -1,9 +1,16 @@
 package com.enigmaOne.enigmaOne.controller;
 
 import com.enigmaOne.enigmaOne.persistence.entity.Order;
+import com.enigmaOne.enigmaOne.persistence.entity.OrderApproval;
 import com.enigmaOne.enigmaOne.service.OrderService;
+import com.enigmaOne.enigmaOne.service.OrderApprovalService;
 import com.enigmaOne.enigmaOne.service.dto.ApiResponse;
 import com.enigmaOne.enigmaOne.service.dto.ApiResponseTest;
+import com.enigmaOne.enigmaOne.service.dto.ApprovalActionDTO;
+import com.enigmaOne.enigmaOne.service.dto.ApprovalResultDTO;
+import com.enigmaOne.enigmaOne.service.dto.TrackingActionDTO;
+import com.enigmaOne.enigmaOne.persistence.types.ApprovalRole;
+import com.enigmaOne.enigmaOne.persistence.types.TrackingState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -20,6 +27,9 @@ public class OrderController {
 
 
     private final OrderService orderService;
+
+    @Autowired
+    private OrderApprovalService orderApprovalService;
 
     @Autowired
     public OrderController(OrderService orderService){
@@ -99,6 +109,68 @@ public class OrderController {
 
         }
 
+    }
+
+    // --- Aprobaciones ---
+
+    @GetMapping("/{id}/approvals")
+    public ResponseEntity<ApiResponseTest<List<OrderApproval>>> listApprovals(@PathVariable Long id){
+        List<OrderApproval> approvals = this.orderApprovalService.listApprovals(id);
+        if(approvals == null || approvals.isEmpty()){
+            ApiResponseTest<List<OrderApproval>> response = new ApiResponseTest<>("Aprobaciones vacías",null,404);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        ApiResponseTest<List<OrderApproval>> response = new ApiResponseTest<>("Lista de aprobaciones",approvals,200);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/approvals/{role}/approve")
+    public ResponseEntity<ApiResponseTest<ApprovalResultDTO>> approve(@PathVariable Long id, @PathVariable String role, @RequestBody ApprovalActionDTO action){
+        try{
+            ApprovalRole r = ApprovalRole.valueOf(role.toUpperCase());
+            ApprovalResultDTO result = this.orderApprovalService.approve(id, r, action);
+            ApiResponseTest<ApprovalResultDTO> response = new ApiResponseTest<>("Aprobado", result,200);
+            return ResponseEntity.ok(response);
+        }catch (IllegalArgumentException ex){
+            ApiResponseTest<ApprovalResultDTO> response = new ApiResponseTest<>("Role inválido", null,400);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }catch (Exception e){
+            ApiResponseTest<ApprovalResultDTO> response = new ApiResponseTest<>("Error al aprobar: " + e.getMessage(), null,409);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+    }
+
+    @PostMapping("/{id}/approvals/{role}/reject")
+    public ResponseEntity<ApiResponseTest<ApprovalResultDTO>> reject(@PathVariable Long id, @PathVariable String role, @RequestBody ApprovalActionDTO action){
+        try{
+            ApprovalRole r = ApprovalRole.valueOf(role.toUpperCase());
+            ApprovalResultDTO result = this.orderApprovalService.reject(id, r, action);
+            ApiResponseTest<ApprovalResultDTO> response = new ApiResponseTest<>("Rechazado", result,200);
+            return ResponseEntity.ok(response);
+        }catch (IllegalArgumentException ex){
+            ApiResponseTest<ApprovalResultDTO> response = new ApiResponseTest<>("Role inválido", null,400);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }catch (Exception e){
+            ApiResponseTest<ApprovalResultDTO> response = new ApiResponseTest<>("Error al rechazar: " + e.getMessage(), null,409);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+    }
+
+    // --- Tracking state change (PEDIDO -> APROBADO -> RUTA -> ALMACEN)
+    @PostMapping("/{id}/tracking")
+    public ResponseEntity<ApiResponseTest<Boolean>> changeTrackingState(@PathVariable Long id, @RequestBody TrackingActionDTO action){
+        try{
+            TrackingState s = TrackingState.valueOf(action.getState().toUpperCase());
+            boolean result = this.orderService.addTrackingEvent(id, s, action.getNote());
+            ApiResponseTest<Boolean> response = new ApiResponseTest<>("Tracking actualizado", result,200);
+            return ResponseEntity.ok(response);
+        }catch (IllegalArgumentException ex){
+            ApiResponseTest<Boolean> response = new ApiResponseTest<>("Estado inválido", null,400);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }catch (Exception e){
+            ApiResponseTest<Boolean> response = new ApiResponseTest<>("Error al actualizar tracking: " + e.getMessage(), null,409);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
     }
 
 
