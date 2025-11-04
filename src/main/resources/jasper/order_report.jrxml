@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="order_report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="3d0f6b2a-4d11-4f43-9c7e-aa1b2c3d4e5f">
+    <parameter name="orderId" class="java.lang.Long"/>
+    <parameter name="type" class="java.lang.String"/>
+    <parameter name="employeeName" class="java.lang.String"/>
+    <parameter name="departmentName" class="java.lang.String"/>
+    <parameter name="approvalStatus" class="java.lang.String"/>
+    <parameter name="currentTrackingState" class="java.lang.String"/>
+    <parameter name="estimatedDateStock" class="java.lang.String"/>
+    <parameter name="createdAt" class="java.lang.String"/>
+    <parameter name="generationDate" class="java.lang.String"/>
+
+    <parameter name="MaterialsSubreport" class="net.sf.jasperreports.engine.JasperReport"/>
+    <parameter name="ServicesSubreport" class="net.sf.jasperreports.engine.JasperReport"/>
+    <parameter name="MaterialsDataSource" class="net.sf.jasperreports.engine.JRDataSource"/>
+    <parameter name="ServicesDataSource" class="net.sf.jasperreports.engine.JRDataSource"/>
+
+    <title>
+        <band height="110">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30"/>
+                <textElement textAlignment="Center">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <text><![CDATA[REPORTE DE ORDEN]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="0" y="36" width="555" height="14"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Orden ID: " + $P{orderId} + "   |   Tipo: " + $P{type}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="52" width="555" height="14"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Empleado: " + ($P{employeeName} == null ? "-" : $P{employeeName}) + "   |   Departamento: " + ($P{departmentName} == null ? "-" : $P{departmentName})]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="68" width="555" height="14"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Estado Aprobación: " + ($P{approvalStatus} == null ? "-" : $P{approvalStatus}) + "   |   Seguimiento: " + ($P{currentTrackingState} == null ? "-" : $P{currentTrackingState})]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="84" width="555" height="14"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Fecha Estimada Stock: " + ($P{estimatedDateStock} == null ? "-" : $P{estimatedDateStock}) + "   |   Fecha Pedido: " + ($P{createdAt} == null ? "-" : $P{createdAt})]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <detail>
+        <band height="20">
+            <subreport>
+                <reportElement x="0" y="0" width="555" height="20"/>
+                <dataSourceExpression><![CDATA[$P{MaterialsDataSource}]]></dataSourceExpression>
+                <subreportExpression><![CDATA[$P{MaterialsSubreport}]]></subreportExpression>
+            </subreport>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="20">
+            <textField>
+                <reportElement x="0" y="0" width="555" height="12"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Generado: " + $P{generationDate}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <summary>
+        <band height="20">
+            <subreport>
+                <reportElement x="0" y="0" width="555" height="20"/>
+                <dataSourceExpression><![CDATA[$P{ServicesDataSource}]]></dataSourceExpression>
+                <subreportExpression><![CDATA[$P{ServicesSubreport}]]></subreportExpression>
+            </subreport>
+        </band>
+    </summary>
+
+</jasperReport>

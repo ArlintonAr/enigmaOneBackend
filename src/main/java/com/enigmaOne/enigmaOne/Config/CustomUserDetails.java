@@ -14,6 +14,7 @@ public class CustomUserDetails implements UserDetails {
     private String email;
     private String password;
     private String photo;
+
     private Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(Long id,String firstName,String lastName,  String email, String password, String photo, Collection<? extends GrantedAuthority> authorities) {
@@ -78,8 +79,6 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-
 
 
 }

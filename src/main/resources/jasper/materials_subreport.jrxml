@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="materials_subreport" pageWidth="555" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="b9c1c1a2-9f3a-4f6c-8d2a-1a2b3c4d5e6f">
+    <field name="id" class="java.lang.Long"/>
+    <field name="code" class="java.lang.String"/>
+    <field name="quantity" class="java.lang.Integer"/>
+    <field name="unitOfMeasure" class="java.lang.String"/>
+    <field name="characteristics" class="java.lang.String"/>
+    <field name="photo" class="java.lang.String"/>
+    <field name="estimatedDateStock" class="java.lang.String"/>
+    <field name="observations" class="java.lang.String"/>
+
+    <title>
+        <band height="20">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="18"/>
+                <textElement>
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Materiales]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="18">
+            <staticText>
+                <reportElement x="0" y="0" width="120" height="18"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Código]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="120" y="0" width="80" height="18"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Cantidad]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="200" y="0" width="120" height="18"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Unidad]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="320" y="0" width="160" height="18"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Características]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="480" y="0" width="75" height="18"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Fecha Est.]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="36">
+            <textField>
+                <reportElement x="0" y="0" width="120" height="18"/>
+                <textFieldExpression><![CDATA[$F{code}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="120" y="0" width="80" height="18"/>
+                <textFieldExpression><![CDATA[$F{quantity}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="200" y="0" width="120" height="18"/>
+                <textFieldExpression><![CDATA[$F{unitOfMeasure}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="320" y="0" width="160" height="18"/>
+                <textFieldExpression><![CDATA[$F{characteristics}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="480" y="0" width="75" height="18"/>
+                <textFieldExpression><![CDATA[$F{estimatedDateStock}]]></textFieldExpression>
+            </textField>
+
+            <!-- Observaciones en segunda línea para cada material -->
+            <textField>
+                <reportElement x="0" y="18" width="555" height="18"/>
+                <textElement>
+                    <font size="9" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{observations} == null ? "" : "Observaciones: " + $F{observations}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+</jasperReport>

@@ -3,6 +3,7 @@ package com.enigmaOne.enigmaOne.service;
 import com.enigmaOne.enigmaOne.persistence.entity.Order;
 import com.enigmaOne.enigmaOne.persistence.entity.Tracking;
 import com.enigmaOne.enigmaOne.persistence.repository.OrderRepository;
+import com.enigmaOne.enigmaOne.persistence.types.ApprovalStatus;
 import com.enigmaOne.enigmaOne.service.mapper.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -144,6 +145,14 @@ public class OrderService implements OrderServiceInterface{
                 .stream()
                 .toList();
         return  orders;
+    }
+
+    @Override
+    public List<Order> getOrdersByApprovalStatus(ApprovalStatus approvalStatus) {
+        List<Order> orders = this.orderRepository.getOrdersByApprovalStatus(approvalStatus)
+                .stream()
+                .toList();
+        return orders;
     }
 
     public boolean existOrderById(Long id){

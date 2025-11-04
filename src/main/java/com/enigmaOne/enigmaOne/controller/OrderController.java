@@ -2,8 +2,10 @@ package com.enigmaOne.enigmaOne.controller;
 
 import com.enigmaOne.enigmaOne.persistence.entity.Order;
 import com.enigmaOne.enigmaOne.persistence.entity.OrderApproval;
+import com.enigmaOne.enigmaOne.persistence.types.ApprovalStatus;
 import com.enigmaOne.enigmaOne.service.OrderService;
 import com.enigmaOne.enigmaOne.service.OrderApprovalService;
+import com.enigmaOne.enigmaOne.service.JasperReportService;
 import com.enigmaOne.enigmaOne.service.dto.ApiResponse;
 import com.enigmaOne.enigmaOne.service.dto.ApiResponseTest;
 import com.enigmaOne.enigmaOne.service.dto.ApprovalActionDTO;
@@ -13,6 +15,8 @@ import com.enigmaOne.enigmaOne.persistence.types.ApprovalRole;
 import com.enigmaOne.enigmaOne.persistence.types.TrackingState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,19 +25,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
+
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
 
 
     private final OrderService orderService;
+    private final JasperReportService jasperReportService;
 
     @Autowired
     private OrderApprovalService orderApprovalService;
 
     @Autowired
-    public OrderController(OrderService orderService){
+    public OrderController(OrderService orderService, JasperReportService jasperReportService){
         this.orderService = orderService;
+        this.jasperReportService = jasperReportService;
     }
 
     @GetMapping()
@@ -68,6 +75,33 @@ public class OrderController {
           ApiResponse<Order> response = new ApiResponse<>("Orden encontrada",order);
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/ordersByApprovalStatus/{status}")
+    public ResponseEntity<ApiResponseTest<List<Order>>> getOrderByApprovalStatus(@PathVariable ApprovalStatus status){
+
+        List<Order> orders= this.orderService.getOrdersByApprovalStatus(status);
+
+        if (orders.isEmpty()){
+            ApiResponseTest<List<Order>> response = new ApiResponseTest<>("Ordenes no encontradas",null,404);
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        ApiResponseTest<List<Order>> response = new ApiResponseTest<>("Ordenes encontradas",orders,200);
+        return ResponseEntity.ok(response);
+
+    }
+
+
+    // Endpoint para generar reporte PDF de una orden (muestra inline)
+    @GetMapping("/{id}/report")
+    public ResponseEntity<byte[]> getOrderReport(@PathVariable("id") Long id) {
+        byte[] pdf = jasperReportService.generateOrderReportPdf(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", "order-" + id + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdf);
+    }
+
     //guardar
     @PostMapping("/createOrder")
     public ResponseEntity<ApiResponseTest<Order>> createOrder(@RequestBody Order order){

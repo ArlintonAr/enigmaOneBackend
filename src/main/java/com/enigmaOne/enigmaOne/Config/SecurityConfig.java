@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import org.springframework.security.authentication.AuthenticationManager;
-
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -59,9 +57,13 @@ public class SecurityConfig {
                                 .requestMatchers("/employees/searchForTerm/**").permitAll()
                                 .requestMatchers("/employees/searchForName/**").permitAll()
 
-                                .requestMatchers("/orders/createOrder").hasAnyRole(Role.JEFE_DE_PROYECTO.name(),Role.GERENTE_GENERAL.name())
+                                .requestMatchers("/orders/createOrder").permitAll()
                                 .requestMatchers("/orders/updateOrder").hasAnyRole(Role.JEFE_DE_PROYECTO.name(),Role.GERENTE_GENERAL.name())
                                 .requestMatchers("/orders/{id}").permitAll()
+                                .requestMatchers("/orders/ordersByApprovalStatus/**")
+                                    .access(new OrderApprovalAuthorizationManager())//permite ver en pendiente solo a los roles correspondientes
+                                .requestMatchers("/orders/{id}/**").permitAll()
+                                .requestMatchers("/orders/{id}/tracking").permitAll()
 
                                 .requestMatchers("/materialOrders/**").permitAll()
 

@@ -87,7 +87,7 @@ public class OrderApprovalService {
             throw new RuntimeException("No hay aprobaciones pendientes para la orden " + orderId);
         }
         if(next.getRole() != role){
-            throw new RuntimeException("Desajuste en el rol de aprobación. Esperado: " + next.getRole() + " pero fue: " + role);
+            throw new RuntimeException("Se esperaba que apruebe : " + next.getRole() + " pero fue: " + role);
         }
 
         // resolver approverId desde la autenticación (forzar uso del usuario autenticado)

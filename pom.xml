@@ -115,6 +115,27 @@
 			<version>2.0.0</version>
 		</dependency>
 
+		<!-- JasperReports para generación de PDF -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>6.20.0</version>
+		</dependency>
+
+		<!-- Fonts para Jasper (mejora render PDF y soporte de caracteres) -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports-fonts</artifactId>
+			<version>6.20.0</version>
+		</dependency>
+
+		<!-- Apache Batik para manejo de SVG si fuera necesario (opcional) -->
+		<dependency>
+			<groupId>org.apache.xmlgraphics</groupId>
+			<artifactId>batik-transcoder</artifactId>
+			<version>1.16</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
