@@ -1,6 +1,8 @@
 package com.enigmaOne.enigmaOne.persistence.entity;
 
 import com.enigmaOne.enigmaOne.persistence.audit.Auditable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +27,7 @@ public class Warehouse extends Auditable {
 
     @Column(nullable = false)
     private String locationName;
+
     private String latitude;
     private String longitude;
 
@@ -32,6 +35,7 @@ public class Warehouse extends Auditable {
     //Relaciones
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Stock> stocks;
 
 }

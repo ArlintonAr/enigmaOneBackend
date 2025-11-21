@@ -1,22 +1,20 @@
 package com.enigmaOne.enigmaOne.controller;
 
 import com.enigmaOne.enigmaOne.persistence.entity.Movement;
-import com.enigmaOne.enigmaOne.persistence.entity.Tracking;
-import com.enigmaOne.enigmaOne.persistence.types.ReturnableType;
 import com.enigmaOne.enigmaOne.service.MovementService;
+import com.enigmaOne.enigmaOne.service.JasperReportService;
 import com.enigmaOne.enigmaOne.service.dto.ApiResponse;
 import com.enigmaOne.enigmaOne.service.dto.ApiResponseTest;
 import com.enigmaOne.enigmaOne.service.dto.MovementResponseDTO;
 import com.enigmaOne.enigmaOne.service.dto.MovementCreateDTO;
-import com.enigmaOne.enigmaOne.service.dto.DetailCreateDTO;
 import com.enigmaOne.enigmaOne.persistence.entity.DetailEntryMaterial;
 import com.enigmaOne.enigmaOne.persistence.entity.DetailExitMaterial;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,9 +23,11 @@ import java.util.stream.Collectors;
 public class MovementController {
 
     private final MovementService movementService;
+    private final JasperReportService jasperReportService;
 
-    public MovementController(MovementService movementService){
+    public MovementController(MovementService movementService, JasperReportService jasperReportService){
         this.movementService = movementService;
+        this.jasperReportService = jasperReportService;
     }
 
     @GetMapping
@@ -92,14 +92,15 @@ public class MovementController {
 
 
     @PostMapping("/createMovement")
-    public ResponseEntity<ApiResponse<Movement>> createMovement(@RequestBody MovementCreateDTO dto) {
+    public ResponseEntity<ApiResponse<MovementResponseDTO>> createMovement(@RequestBody MovementCreateDTO dto) {
         // Mapear DTO a entidad Movement
         Movement movement = new Movement();
         movement.setType(dto.getType());
         movement.setReturnable(dto.getReturnable());
         movement.setMaterialRequesterId(dto.getMaterialRequesterId());
         if (dto.getReturnDate() != null) {
-            movement.setReturnDate(LocalDateTime.ofInstant(dto.getReturnDate().toInstant(), ZoneId.systemDefault()));
+            // Asignar la fecha tal cual viene en el DTO sin normalizar por zonas horarias
+            movement.setReturnDate(dto.getReturnDate());
         }
 
         // Mapear detalles de salida
@@ -127,14 +128,16 @@ public class MovementController {
         }
 
         boolean savedMovement = this.movementService.createMovement(movement);
-        ApiResponse<Movement> response;
         if (!savedMovement) {
-            response = new ApiResponse<>("Movimiento NO creado", movement);
+            ApiResponse<MovementResponseDTO> response = new ApiResponse<>("Movimiento NO creado", null);
             return ResponseEntity.status(500).body(response);
         } else {
-            response = new ApiResponse<>("Movimiento creado", movement);
+            // Obtener el DTO mapeado y devolverlo (consistentemente con otros endpoints como Employee)
+            List<MovementResponseDTO> dtoList = this.movementService.getMovementByTransactionCode(movement.getTransactionCode());
+            MovementResponseDTO responseDto = (dtoList != null && !dtoList.isEmpty()) ? dtoList.get(0) : null;
+            ApiResponse<MovementResponseDTO> response = new ApiResponse<>("Movimiento creado", responseDto);
             return ResponseEntity.status(201).body(response);
-        }
+         }
     }
 
     @PatchMapping("/updateMovement/{id}")
@@ -173,6 +176,15 @@ public class MovementController {
                 response = new ApiResponse<>("Movimiento eliminado", null);
                 return ResponseEntity.status(200).body(response);
             }
+    }
+
+    @GetMapping("/{id}/report")
+    public ResponseEntity<byte[]> getMovementReport(@PathVariable("id") Long id) {
+        byte[] pdf = jasperReportService.generateMovementReportPdf(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", "movement-" + id + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdf);
     }
 
 }

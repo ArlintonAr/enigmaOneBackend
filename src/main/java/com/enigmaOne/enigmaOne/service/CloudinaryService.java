@@ -16,9 +16,15 @@ public class CloudinaryService {
     @Autowired
     private Cloudinary cloudinary;
 
+    @Autowired
+    private FileSizeValidator fileSizeValidator;
+
     public String uploadPhotoToCloudinary (MultipartFile file,String folderName) {
 
         try {
+
+            // Validar tamaño del archivo antes de procesar
+            this.fileSizeValidator.validate(file);
 
             String publicId = UUID.randomUUID().toString();
             Map uploadResult =this.cloudinary.uploader().upload(file.getBytes(),

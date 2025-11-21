@@ -40,6 +40,7 @@ public class Stock extends Auditable {
 
     private String messageAccordingType;
     private String photo;
+    private String orderGuides; // URL del PDF con las guías/ordenes relacionadas al stock
 
     //Relaciones
 
@@ -56,9 +57,14 @@ public class Stock extends Auditable {
     private List<DetailExitMaterial> detailExitMaterials;
 
     //Almacen
+
+    @Column(name = "warehouseId", insertable = false, updatable = false)
     private  Long warehouseId;
+
+    // Ahora la relación ManyToOne es la propietaria y podrá persistir la FK cuando se asigne warehouse
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "warehouseId", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "warehouseId", referencedColumnName = "id")
+    @JsonIgnore
     private Warehouse warehouse;
 
     //Ordenes

@@ -29,6 +29,9 @@ public class EmployeeService implements EmployeeServiceInterface {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private FileSizeValidator fileSizeValidator;
+
 
 
     public List<EmployeeResponseDTO> getAllEmployees() {
@@ -75,6 +78,8 @@ public class EmployeeService implements EmployeeServiceInterface {
 
             //subir foto al repositorio cloudinary y obtener el link de la ruta para almacenar en base de datos
             if ( photoFile != null && !photoFile.isEmpty()){
+               // validar tamaño del archivo
+               this.fileSizeValidator.validate(photoFile);
                String urlPhoto = this.cloudinaryService.uploadPhotoToCloudinary(photoFile,"employees");
                System.out.println(urlPhoto);
                newEmployee.setPhoto(urlPhoto);
@@ -102,6 +107,8 @@ public class EmployeeService implements EmployeeServiceInterface {
                     employeeDto.setPassword(this.passwordEncoder.encode(employeeDto.getPassword()));
                 }
                 if (file != null && !file.isEmpty()){
+                   // validar tamaño del archivo
+                   this.fileSizeValidator.validate(file);
                    //eliminar la foto que está en el repositorio de cloudinary
                     this.cloudinaryService.deletePhotoOnCloudinary(employee.getPhoto());
                     //subir la nueva foto a cloudinary

@@ -2,8 +2,10 @@ package com.enigmaOne.enigmaOne.service;
 
 import com.enigmaOne.enigmaOne.persistence.entity.Order;
 import com.enigmaOne.enigmaOne.persistence.types.ApprovalStatus;
+import com.enigmaOne.enigmaOne.persistence.types.TrackingState;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderServiceInterface {
 
@@ -15,4 +17,8 @@ public interface OrderServiceInterface {
 
      List<Order> getOrdersForEmployeeId(Long employeeId);
      List<Order> getOrdersByApprovalStatus(ApprovalStatus approvalStatus);
+
+
+    List<Order> findByCurrentTrackingState(TrackingState state);
+    Optional<Order> findFirstByCurrentTrackingState(TrackingState state);
 }

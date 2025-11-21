@@ -1,21 +1,17 @@
 package com.enigmaOne.enigmaOne.service;
 
-import com.enigmaOne.enigmaOne.Config.GenerateNanoIdCongif;
 import com.enigmaOne.enigmaOne.persistence.entity.Warehouse;
 import com.enigmaOne.enigmaOne.persistence.repository.WarehouseRepository;
-import com.enigmaOne.enigmaOne.service.mapper.WarehouseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class WarehouseService implements WarehouseServiceInterface{
+public class WarehouseService implements WarehouseServiceInterface {
 
     @Autowired
     private WarehouseRepository warehouseRepository;
-    @Autowired
-    private WarehouseMapper warehouseMapper;
 
     @Override
     public List<Warehouse> getAllWarehouses() {
@@ -29,26 +25,28 @@ public class WarehouseService implements WarehouseServiceInterface{
 
     @Override
     public boolean createWarehouse(Warehouse warehouse) {
-      try {
-
-          this.warehouseRepository.save(warehouse);
-          return true;
-      }catch (Exception e) {
-          System.out.println("ERROR: " + e);
-          return false;
-      }
+        try {
+            this.warehouseRepository.save(warehouse);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public boolean updateWarehouse(Long id, Warehouse warehouse) {
         try {
-            Warehouse findWarehouse = this.getWarehouseById(id);
-
-            this.warehouseMapper.updateWarehouseFromDto(warehouse,findWarehouse);
-            this.warehouseRepository.save(findWarehouse);
+            Warehouse found = this.getWarehouseById(id);
+            if (found == null) return false;
+            // actualizar campos simples
+            found.setLocationName(warehouse.getLocationName());
+            found.setLatitude(warehouse.getLatitude());
+            found.setLongitude(warehouse.getLongitude());
+            this.warehouseRepository.save(found);
             return true;
-        }catch (Exception e){
-            System.out.println("ERROR: " + e);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }
@@ -56,11 +54,12 @@ public class WarehouseService implements WarehouseServiceInterface{
     @Override
     public boolean deleteWarehouse(Long id) {
         try {
-            Warehouse findWarehouse = this.getWarehouseById(id);
-            this.warehouseRepository.delete(findWarehouse);
+            Warehouse found = this.getWarehouseById(id);
+            if (found == null) return false;
+            this.warehouseRepository.delete(found);
             return true;
-        }catch (Exception e){
-            System.out.println("ERROR: " + e);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }

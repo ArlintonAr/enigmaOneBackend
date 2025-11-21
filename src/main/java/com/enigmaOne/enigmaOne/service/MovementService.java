@@ -233,7 +233,7 @@ public class MovementService implements MovementServiceInterface {
 
          Stock stockUpdated = new Stock();
          stockUpdated.setQuantity(newQuantity);
-         boolean updated = this.stockService.updateStock(stockUpdated, stockForUpdated.getId(), null);
+         boolean updated = this.stockService.updateStock(stockUpdated, stockForUpdated.getId(), null, null);
          if (!updated) throw new RuntimeException("No se pudo actualizar stock id=" + stockForUpdated.getId());
          this.detailExitMaterialRepository.save(detail);
      }
@@ -248,7 +248,7 @@ public class MovementService implements MovementServiceInterface {
          int newQuantity = stockForUpdated.getQuantity() + detail.getQuantity();
          Stock stockUpdated = new Stock();
          stockUpdated.setQuantity(newQuantity);
-         boolean updated = this.stockService.updateStock(stockUpdated, stockForUpdated.getId(), null);
+         boolean updated = this.stockService.updateStock(stockUpdated, stockForUpdated.getId(), null, null);
          if (!updated) throw new RuntimeException("No se pudo actualizar stock id=" + stockForUpdated.getId());
          this.detailEntryMaterialRepository.save(detail);
      }

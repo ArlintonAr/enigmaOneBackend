@@ -3,7 +3,9 @@ package com.enigmaOne.enigmaOne.controller;
 import com.enigmaOne.enigmaOne.persistence.entity.Warehouse;
 import com.enigmaOne.enigmaOne.service.WarehouseService;
 import com.enigmaOne.enigmaOne.service.dto.ApiResponse;
+import com.enigmaOne.enigmaOne.service.dto.ApiResponseTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,87 +15,74 @@ import java.util.List;
 @RequestMapping("/warehouses")
 public class WarehouseController {
 
-
-    private WarehouseService warehouseService;
+    private final WarehouseService warehouseService;
 
     @Autowired
     public WarehouseController(WarehouseService warehouseService) {
         this.warehouseService = warehouseService;
-
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Warehouse>>> getAllWarehouses() {
-        List<Warehouse> warehouses = warehouseService.getAllWarehouses();
-
-       if (warehouses.isEmpty() ){
-        ApiResponse<List <Warehouse>> response = new ApiResponse<>("No hay almacenes disponibles", warehouses);
-        return ResponseEntity.status(404).body(response);
-       }else {
-              ApiResponse<List<Warehouse>> response = new ApiResponse<>("Lista de almacenes", warehouses);
-              return ResponseEntity.ok(response);
-       }
+    public ResponseEntity<ApiResponseTest<List<Warehouse>>> getAllWarehouses(){
+        List<Warehouse> warehouses = this.warehouseService.getAllWarehouses();
+        if (warehouses.isEmpty()){
+            ApiResponseTest<List<Warehouse>> response = new ApiResponseTest<>("Warehouse vacío", warehouses,404);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        ApiResponseTest<List<Warehouse>> response = new ApiResponseTest<>("Lista de Warehouses", warehouses,200);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Warehouse>> getWarehouseById(@PathVariable  Long id) {
-        Warehouse warehouse = warehouseService.getWarehouseById(id);
-        if (warehouse == null) {
-            ApiResponse<Warehouse> response = new ApiResponse<>("Almacén no encontrado", null);
-            return ResponseEntity.status(404).body(response);
+    public ResponseEntity<ApiResponseTest<Warehouse>> getWarehouseById(@PathVariable Long id){
+        Warehouse warehouse = this.warehouseService.getWarehouseById(id);
+        if (warehouse == null){
+            ApiResponseTest<Warehouse> response = new ApiResponseTest<>("Warehouse no encontrado", null,404);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        ApiResponse<Warehouse> response = new ApiResponse<>("Almacén encontrado", warehouse);
+        ApiResponseTest<Warehouse> response = new ApiResponseTest<>("Warehouse encontrado", warehouse,200);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/createWarehouse")
-    public ResponseEntity<ApiResponse<Warehouse>> createWarehouse(@RequestBody Warehouse warehouse) {
-
-        boolean savedWarehouse = warehouseService.createWarehouse(warehouse);
-        ApiResponse<Warehouse> response;
-        if (!savedWarehouse) {
-            response = new ApiResponse<>("Almacén NO creado", warehouse);
-            return ResponseEntity.status(500).body(response);
-        } else {
-            Warehouse createdWarehouse = warehouseService.getWarehouseById(warehouse.getId());
-            response = new ApiResponse<>("Almacén creado", createdWarehouse);
-            return ResponseEntity.status(201).body(response);
+    public ResponseEntity<ApiResponseTest<Warehouse>> createWarehouse(@RequestBody Warehouse warehouse){
+        boolean created = this.warehouseService.createWarehouse(warehouse);
+        if (created){
+            ApiResponseTest<Warehouse> response = new ApiResponseTest<>("Warehouse creado", warehouse,201);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
+        ApiResponseTest<Warehouse> response = new ApiResponseTest<>("Error al crear Warehouse", null,500);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @PatchMapping("/updateWarehouse/{id}")
-    public ResponseEntity<ApiResponse<Warehouse>> updateWarehouse(@RequestBody Warehouse warehouse, @PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Warehouse>> updateWarehouse(@PathVariable Long id, @RequestBody Warehouse warehouse){
         if (!this.warehouseService.existsWarehouseById(id)){
-            ApiResponse<Warehouse> response = new ApiResponse<>("El almacén no existe", null);
-            return ResponseEntity.status(404).body(response);
+            ApiResponse<Warehouse> response = new ApiResponse<>("Warehouse no encontrado", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        boolean updatedWarehouse = warehouseService.updateWarehouse( id,warehouse);
-        ApiResponse<Warehouse> response;
-        if (!updatedWarehouse) {
-            response = new ApiResponse<>("Almacén NO actualizado", warehouse);
-            return ResponseEntity.status(500).body(response);
-        } else {
-            Warehouse updated = warehouseService.getWarehouseById(id);
-            response = new ApiResponse<>("Almacén actualizado", updated);
-            return ResponseEntity.status(200).body(response);
+        boolean updated = this.warehouseService.updateWarehouse(id, warehouse);
+        if (updated){
+            ApiResponse<Warehouse> response = new ApiResponse<>("Warehouse actualizado", this.warehouseService.getWarehouseById(id));
+            return ResponseEntity.ok(response);
         }
+        ApiResponse<Warehouse> response = new ApiResponse<>("Error al actualizar Warehouse", null);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @DeleteMapping("/deleteWarehouse/{id}")
-    public ResponseEntity<ApiResponse<Warehouse>> deleteWarehouse(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Warehouse>> deleteWarehouse(@PathVariable Long id){
         if (!this.warehouseService.existsWarehouseById(id)){
-            ApiResponse<Warehouse> response = new ApiResponse<>("El almacén no existe", null);
-            return ResponseEntity.status(404).body(response);
+            ApiResponse<Warehouse> response = new ApiResponse<>("Warehouse no encontrado", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        boolean deletedWarehouse = warehouseService.deleteWarehouse(id);
-        ApiResponse<Warehouse> response;
-        if (!deletedWarehouse) {
-            response = new ApiResponse<>("Almacén NO eliminado", null);
-            return ResponseEntity.status(500).body(response);
-        } else {
-            response = new ApiResponse<>("Almacén eliminado", null);
-            return ResponseEntity.status(200).body(response);
+        boolean deleted = this.warehouseService.deleteWarehouse(id);
+        if (deleted){
+            ApiResponse<Warehouse> response = new ApiResponse<>("Warehouse eliminado", null);
+            return ResponseEntity.ok(response);
         }
+        ApiResponse<Warehouse> response = new ApiResponse<>("Error al eliminar Warehouse", null);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
 }

@@ -16,6 +16,7 @@ import com.enigmaOne.enigmaOne.persistence.types.TrackingState;
 import com.enigmaOne.enigmaOne.service.dto.EmployeeResponseDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService implements OrderServiceInterface{
@@ -153,6 +154,16 @@ public class OrderService implements OrderServiceInterface{
                 .stream()
                 .toList();
         return orders;
+    }
+
+    @Override
+    public List<Order> findByCurrentTrackingState(TrackingState state) {
+        return orderRepository.findByCurrentTrackingState(state);
+    }
+
+    @Override
+    public Optional<Order> findFirstByCurrentTrackingState(TrackingState state) {
+        return orderRepository.findFirstByCurrentTrackingState(state);
     }
 
     public boolean existOrderById(Long id){

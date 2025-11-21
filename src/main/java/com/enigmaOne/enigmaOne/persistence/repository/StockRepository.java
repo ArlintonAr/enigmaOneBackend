@@ -15,4 +15,7 @@ public interface StockRepository extends ListCrudRepository<Stock,Long> {
 
     List<Stock> findStockById(Long id);
 
+    // Buscar stocks por warehouseId
+    List<Stock> findStockByWarehouseId(Long warehouseId);
+
 }

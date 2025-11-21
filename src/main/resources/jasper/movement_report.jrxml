@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="movement_report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+    <parameter name="movementId" class="java.lang.Long"/>
+    <parameter name="transactionCode" class="java.lang.String"/>
+    <parameter name="returnDate" class="java.util.Date"/>
+    <parameter name="authorizer" class="java.lang.String"/>
+    <parameter name="requester" class="java.lang.String"/>
+    <parameter name="quantity" class="java.lang.Integer"/>
+    <parameter name="createdAt" class="java.lang.String"/>
+    <parameter name="generationDate" class="java.lang.String"/>
+
+    <parameter name="MaterialsSubreport" class="net.sf.jasperreports.engine.JasperReport"/>
+    <parameter name="MaterialsDataSource" class="net.sf.jasperreports.engine.JRDataSource"/>
+
+    <title>
+        <band height="120">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30"/>
+                <textElement textAlignment="Center">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <text><![CDATA[REPORTE DE MOVIMIENTO]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="0" y="36" width="555" height="14"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Movimiento ID: " + $P{movementId} + "   |   Código: " + ($P{transactionCode} == null ? "-" : $P{transactionCode})]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="52" width="555" height="14"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Fecha retorno: " + ($P{returnDate} == null ? "-" : new java.text.SimpleDateFormat("yyyy-MM-dd").format($P{returnDate})) + "   |   Cantidad total: " + ($P{quantity} == null ? "-" : $P{quantity})]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="68" width="555" height="14"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Autorizante: " + ($P{authorizer} == null ? "-" : $P{authorizer}) + "   |   Solicitante: " + ($P{requester} == null ? "-" : $P{requester})]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="84" width="555" height="14"/>
+                <textElement>
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Creado: " + ($P{createdAt} == null ? "-" : $P{createdAt})]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <detail>
+        <band height="20">
+            <subreport>
+                <reportElement x="0" y="0" width="555" height="20"/>
+                <dataSourceExpression><![CDATA[$P{MaterialsDataSource}]]></dataSourceExpression>
+                <subreportExpression><![CDATA[$P{MaterialsSubreport}]]></subreportExpression>
+            </subreport>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="20">
+            <textField>
+                <reportElement x="0" y="0" width="555" height="12"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Generado: " + $P{generationDate}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+</jasperReport>

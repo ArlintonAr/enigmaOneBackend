@@ -54,6 +54,17 @@ public class OrderController {
         return ResponseEntity.ok( response);
     }
 
+    @GetMapping("/trackingState/{state}")
+    public ResponseEntity<ApiResponseTest<List<Order>>> getOrdersByTrackingState(@PathVariable TrackingState state){
+        List<Order> orders = this.orderService.findByCurrentTrackingState(state);
+        if(orders.isEmpty()){
+            ApiResponseTest<List<Order>> response = new ApiResponseTest<>("Ordenes vacías",null,404);
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        ApiResponseTest<List<Order>> response = new ApiResponseTest<>("Lista de Ordenes por estado de seguimiento",orders,200);
+        return ResponseEntity.ok( response);
+    }
+
     @GetMapping("/ordersByEmployeeId/{id}")
     public  ResponseEntity<ApiResponseTest<List<Order>>> getOrdersForEmployeeId(@PathVariable Long id ){
         List<Order> orders = this.orderService.getOrdersForEmployeeId(id);

@@ -78,8 +78,20 @@ public class StockController {
         List<Stock> stocks = this.stockService.getStockForDescription(description);
         if (stocks.isEmpty()){
             ApiResponseTest<List<Stock>> response = new ApiResponseTest<>("Stock no encontrado", stocks,404);
-            return ResponseEntity.status(404).body(response);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }else {
+            ApiResponseTest<List<Stock>> response = new ApiResponseTest<>("Stock encontrado", stocks,200);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @GetMapping("/findStockForWarehouseId/{warehouseId}")
+    public ResponseEntity<ApiResponseTest<List<Stock>>> findStockForWarehouseId(@PathVariable Long warehouseId){
+        List<Stock> stocks = this.stockService.findStockForWarehouseId(warehouseId);
+        if (stocks == null || stocks.isEmpty()){
+            ApiResponseTest<List<Stock>> response = new ApiResponseTest<>("Stock no encontrado para warehouseId: " + warehouseId, stocks,404);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } else {
             ApiResponseTest<List<Stock>> response = new ApiResponseTest<>("Stock encontrado", stocks,200);
             return ResponseEntity.ok(response);
         }
@@ -88,7 +100,8 @@ public class StockController {
     @PostMapping(value = "/createStock",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponseTest<Stock>> createStock(
             @RequestPart("stock") Stock stock,
-            @RequestPart(value = "photo", required = false) MultipartFile photo
+            @RequestPart(value = "photo", required = false) MultipartFile photo,
+            @RequestPart(value = "orderGuides", required = false) MultipartFile orderGuides
     ){
 
         boolean existStockForCode = this.stockService.stockExistsByCode(stock.getCode());
@@ -97,7 +110,7 @@ public class StockController {
             return ResponseEntity.status(409).body(response);
         }
 
-        boolean created = this.stockService.createStock(stock,photo);
+        boolean created = this.stockService.createStock(stock,photo, orderGuides);
         if (created){
             ApiResponseTest<Stock> response = new ApiResponseTest<>("Stock creado", stock,200);
             return ResponseEntity.status(201).body(response);
@@ -107,10 +120,11 @@ public class StockController {
         }
     }
 
-    @PatchMapping("/updateStock/{id}")
+    @PatchMapping(value = "/updateStock/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Stock>> updateStock(
             @RequestPart("stock") Stock stock,
             @RequestPart(value = "photo", required = false) MultipartFile photo,
+            @RequestPart(value = "orderGuides", required = false) MultipartFile orderGuides,
             @PathVariable Long id
     ){
         boolean existsById = this.stockService.stockExistsById(id);
@@ -119,7 +133,7 @@ public class StockController {
             return ResponseEntity.status(404).body(response);
         }
 
-        boolean updated = this.stockService.updateStock(stock, id, photo);
+        boolean updated = this.stockService.updateStock(stock, id, photo, orderGuides);
         if (updated){
             Stock updatedStock = this.stockService.getStockById(id);
             ApiResponse<Stock> response = new ApiResponse<>("Stock actualizado", updatedStock);

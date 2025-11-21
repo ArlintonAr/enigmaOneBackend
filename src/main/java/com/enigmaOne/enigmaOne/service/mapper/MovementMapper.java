@@ -1,8 +1,6 @@
 package com.enigmaOne.enigmaOne.service.mapper;
 
-
 import com.enigmaOne.enigmaOne.persistence.entity.Movement;
-import com.enigmaOne.enigmaOne.persistence.entity.Tracking;
 import com.enigmaOne.enigmaOne.service.dto.MovementResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
